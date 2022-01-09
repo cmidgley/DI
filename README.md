@@ -1,12 +1,33 @@
 ## Modifications to the original in this fork
 
-This fork has been made to manage changes necessary to use with an embedded JavaScript framework called [ModdableSDK](https://github.com/Moddable-OpenSource/moddable).  There are three main changes:
+This fork has been made to manage changes necessary to use with an embedded JavaScript framework called [ModdableSDK](https://github.com/Moddable-OpenSource/moddable).  There are five main changes:
 
-1) Removal of sourcemap references from generated files: At the end of the `dist/...` generated source files are the standard TypeScript references to source maps.  Currently there is a [bug](https://github.com/Moddable-OpenSource/moddable/issues/771) in Moddable that causes the compiler to fail to compile the code, so these have been removed.  Once that bug is fixed, this change will be reverted.
-2) Addition of the `manifest.json` file required by Moddable to control the build.  This is similar to the `package.json` file used by Node, but has a different format and technique to include files.
-3) Addition of a [ttypescript](https://github.com/cevek/ttypescript) module to allow for compiling with the command `ttsc` using the required DI transformer.
+1) Addition of a [ttypescript](https://github.com/cevek/ttypescript) module to allow for compiling with the command `ttsc` using the required DI transformer.  Also updated `package.json` to use a `postinstall` script to load the required modules.
+2) Addition of a `manifest.json` file required by Moddable to control the build.  This file is similar to a `package.json` file used by Node, but has a different format and technique to include files.
+3) A change to `di-container.ts` to resolve a typescript error due to a missing cast.
+4) Removal of sourcemap references from generated files: At the end of the `dist/...` generated source files are the standard TypeScript references to source maps (`sourceMappingURL`).  Currently there is a [bug](https://github.com/Moddable-OpenSource/moddable/issues/771) in Moddable that causes the compiler to fail to compile the code, so these have been removed.  Once that bug is fixed, this change will be reverted.  This change is implemented via a script executed via `npm run remove-maps` command, which requires linux-style operation to work (depends on piping from `find` to `xargs` and `sed`).
+5) Remove `dist` from .gitignore so that we check in the hacked dist file.  Will also be removed when the bug is fixed.  This is a bit lazy, as technically we could publish this as a problem NPM package, but seeing as this from a bug, and hopefully once clarified the changes can get pulled into mainline, we are avoiding creating a unique package.
 
-Using this requires hand editing the Moddable `mcconfig.js` file to modify it so it generates the `ttsc` command, and also adds the required `plugins` sections to `tsconfig.json` to reference the transformer module (#3, above).  I have submitted a [feature request](https://github.com/Moddable-OpenSource/moddable/issues/772) to Moddable to propose adding functionality to Moddable to avoid this hack.
+Using this requires hand editing the Moddable `mcconfig.js` file to modify it so it generates the `ttsc` command (or `npx ttsc` if `ttypescript` is not installed globally), and also adds the required `plugins` sections to `tsconfig.json` to reference the transformer module (#3, above).  I have submitted a [feature request](https://github.com/Moddable-OpenSource/moddable/issues/772) to Moddable to propose adding functionality to Moddable to avoid this hack.
+
+The modifications are made to the `.../moddable/tools/mcmanifest.js` file as follows:
+
+* In `generateModulesRules` search for `"tsc"` (currently around line 456/467) and change `tsc` to either `ttsc` (`ttypescript` globally installed) or `npx ttsc` (locally installed):
+```tsc
+this.echo(tool, "npx ttsc ", "tsconfig.json");
+this.line("\tnpx ttsc -p $(MODULES_DIR)", tool.slash, "tsconfig.json --pretty false 1>&2");
+```
+* In `generate` modify `compilerOptions` to include the needed `plugins` parameter as a new member: 
+```tsc
+[{ transform: tool.mainPath + "/node_modules/@cmidgley/di-transformer/src/transformer.ts" }],
+```
+
+Once done, you will need to rebuild the Moddable tools (in this case, for linux):
+
+```
+cd <path>/moddable/build/makefiles/lin
+make
+```
 
 ## Original README
 

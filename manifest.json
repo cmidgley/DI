@@ -1,0 +1,8 @@
+{
+    "modules": {
+        "@cmidgley/*": ["node_modules/@cmidgley/di/dist/esm/*"],
+        "@cmidgley/di/dist/esm/di-container/*": ["node_modules/@cmidgley/di/dist/esm/di-container/*"],
+        "@cmidgley/di/dist/esm/constructor-arguments/*": ["node_modules/@cmidgley/di/dist/esm/constructor-arguments/*"],
+        "@cmidgley/di/dist/esm/registration-kind/*": ["node_modules/@cmidgley/di/dist/esm/registration-kind/*"]        
+    }
+}

@@ -1,0 +1,10 @@
+{
+	"name": "@cmidgley/di-transformer",
+	"version": "1.0.0",
+	"description": "Transformer for ttypescript to run di-compiler",
+	"devDependencies": {
+		"typescript": "^4.5.3",
+		"@wessberg/di-compiler": "~2.2.6",
+		"ttypescript": "~1.5.13"
+	}
+}

@@ -231,7 +231,7 @@ export class DIContainer implements IDIContainer {
 				instance = new newable(...instanceArgs);
 			} catch (ex) {
 				if (registrationRecord.implementation == null) throw new ReferenceError(`${this.constructor.name} could not construct a new service of kind: ${identifier}. Reason: No implementation was given!`);
-				const constructable = registrationRecord.implementation;
+				const constructable = <(...args: any[]) => T> <unknown> registrationRecord.implementation;
 				// Try without 'new' and call the implementation as a function.
 				instance = constructable(...instanceArgs);
 			}
