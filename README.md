@@ -1,3 +1,15 @@
+## Modifications to the original in this fork
+
+This fork has been made to manage changes necessary to use with an embedded JavaScript framework called [ModdableSDK](https://github.com/Moddable-OpenSource/moddable).  There are three main changes:
+
+1) Removal of sourcemap references from generated files: At the end of the `dist/...` generated source files are the standard TypeScript references to source maps.  Currently there is a [bug](https://github.com/Moddable-OpenSource/moddable/issues/771) in Moddable that causes the compiler to fail to compile the code, so these have been removed.  Once that bug is fixed, this change will be reverted.
+2) Addition of the `manifest.json` file required by Moddable to control the build.  This is similar to the `package.json` file used by Node, but has a different format and technique to include files.
+3) Addition of a [ttypescript](https://github.com/cevek/ttypescript) module to allow for compiling with the command `ttsc` using the required DI transformer.
+
+Using this requires hand editing the Moddable `mcconfig.js` file to modify it so it generates the `ttsc` command, and also adds the required `plugins` sections to `tsconfig.json` to reference the transformer module (#3, above).  I have submitted a [feature request](https://github.com/Moddable-OpenSource/moddable/issues/772) to Moddable to propose adding functionality to Moddable to avoid this hack.
+
+## Original README
+
 <img alt="Logo for @wessberg/di" src="https://raw.githubusercontent.com/wessberg/di/master/documentation/asset/di-logo.png" height="200"></img><br>
 <a href="https://npmcharts.com/compare/@wessberg/di?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/%40wessberg%2Fdi.svg" height="20"></img></a>
 <a href="https://david-dm.org/wessberg/di"><img alt="Dependencies" src="https://img.shields.io/david/wessberg/di.svg" height="20"></img></a>
