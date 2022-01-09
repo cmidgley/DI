@@ -29,6 +29,13 @@ cd <path>/moddable/build/makefiles/lin
 make
 ```
 
+Don't forget to add this package to your `package.json` file, such as:
+
+```
+"dependencies": {
+  "@cmidgley/di": "https://github.com/cmidgley/di"
+}
+
 ## Original README
 
 <img alt="Logo for @wessberg/di" src="https://raw.githubusercontent.com/wessberg/di/master/documentation/asset/di-logo.png" height="200"></img><br>
