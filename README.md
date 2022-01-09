@@ -19,7 +19,7 @@ this.line("\tnpx ttsc -p $(MODULES_DIR)", tool.slash, "tsconfig.json --pretty fa
 ```
 * In `generate` modify `compilerOptions` to include the needed `plugins` parameter as a new member: 
 ```tsc
-[{ transform: tool.mainPath + "/node_modules/@cmidgley/di-transformer/src/transformer.ts" }],
+[{ transform: tool.mainPath + "/node_modules/@cmidgley/di/ttypescript/src/transformer.js" }],
 ```
 
 Once done, you will need to rebuild the Moddable tools (in this case, for linux):
