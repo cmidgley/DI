@@ -1,8 +1,8 @@
 {
     "modules": {
-        "@cmidgley/*": ["node_modules/@cmidgley/di/dist/esm/*"],
-        "@cmidgley/di/dist/esm/di-container/*": ["node_modules/@cmidgley/di/dist/esm/di-container/*"],
-        "@cmidgley/di/dist/esm/constructor-arguments/*": ["node_modules/@cmidgley/di/dist/esm/constructor-arguments/*"],
-        "@cmidgley/di/dist/esm/registration-kind/*": ["node_modules/@cmidgley/di/dist/esm/registration-kind/*"]        
+        "@cmidgley/di": ["dist/esm/index", "dist/esm/index.d"],
+        "@cmidgley/di/dist/esm/di-container/*": ["dist/esm/di-container/*"],
+        "@cmidgley/di/dist/esm/constructor-arguments/*": ["dist/esm/constructor-arguments/*"],
+        "@cmidgley/di/dist/esm/registration-kind/*": ["dist/esm/registration-kind/*"]        
     }
 }
