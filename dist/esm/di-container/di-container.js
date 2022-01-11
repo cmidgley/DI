@@ -184,3 +184,4 @@ export class DIContainer {
         return registrationRecord.kind === RegistrationKind.SINGLETON ? this.setInstance(identifier, instance) : instance;
     }
 }
+//# sourceMappingURL=di-container.js.map

@@ -6,3 +6,4 @@ var RegistrationKind;
     RegistrationKind[RegistrationKind["SINGLETON"] = 0] = "SINGLETON";
     RegistrationKind[RegistrationKind["TRANSIENT"] = 1] = "TRANSIENT";
 })(RegistrationKind = exports.RegistrationKind || (exports.RegistrationKind = {}));
+//# sourceMappingURL=registration-kind.js.map
