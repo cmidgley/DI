@@ -10,6 +10,20 @@ import { ImplementationInstance } from "../implementation/implementation";
  */
 export declare class DIContainer implements IDIContainer {
     /**
+     * Singleton instance of the container, for global sharing of the container.
+     */
+    private static diContainer?;
+    /**
+     * Provides a global shared instance of a container (singleton).  This is
+     * especially useful when creating libraries (such as in a monorepo) where
+     * the library's imported file defines the dependencies that need to be
+     * injected for the library to operate without exposing the full set of
+     * injections necessary for each library.
+     *
+     * @returns Singleton container
+     */
+    static container(): DIContainer;
+    /**
      * A map between interface names and the services that should be dependency injected
      * @type {Map<string, ConstructorArgument[]>}
      */
