@@ -23,21 +23,6 @@ export class DIContainer implements IDIContainer {
 	private static diContainer?: DIContainer;
 
 	/**
-	 * Provides a global shared instance of a container (singleton).  This is
-	 * especially useful when creating libraries (such as in a monorepo) where
-	 * the library's imported file defines the dependencies that need to be
-	 * injected for the library to operate without exposing the full set of
-	 * injections necessary for each library.
-	 *
-	 * @returns Singleton container
-	 */
-	static container(): DIContainer {
-		if (!DIContainer.diContainer)
-			DIContainer.diContainer = new DIContainer();
-		return DIContainer.diContainer;
-	}
-
-	/**
 	 * A map between interface names and the services that should be dependency injected
 	 * @type {Map<string, ConstructorArgument[]>}
 	 */
@@ -124,6 +109,21 @@ export class DIContainer implements IDIContainer {
 	public has<T> (options?: IHasOptions): boolean {
 		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No options was given!`);
 		return this.serviceRegistry.has(options.identifier);
+	}
+
+	/**
+	 * Provides a global shared instance of a container (singleton).  This is
+	 * especially useful when creating libraries (such as in a monorepo) where
+	 * the library's imported file defines the dependencies that need to be
+	 * injected for the library to operate without exposing the full set of
+	 * injections necessary for each library.
+	 *
+	 * @returns Singleton container
+	 */
+	public static container(): DIContainer {
+		if (!DIContainer.diContainer)
+			DIContainer.diContainer = new DIContainer();
+		return DIContainer.diContainer;
 	}
 
 	/**

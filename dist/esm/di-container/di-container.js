@@ -23,20 +23,6 @@ export class DIContainer {
          */
         this.instances = new Map();
     }
-    /**
-     * Provides a global shared instance of a container (singleton).  This is
-     * especially useful when creating libraries (such as in a monorepo) where
-     * the library's imported file defines the dependencies that need to be
-     * injected for the library to operate without exposing the full set of
-     * injections necessary for each library.
-     *
-     * @returns Singleton container
-     */
-    static container() {
-        if (!DIContainer.diContainer)
-            DIContainer.diContainer = new DIContainer();
-        return DIContainer.diContainer;
-    }
     registerSingleton(newExpression, options) {
         if (options == null)
             throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given!`);
@@ -84,6 +70,20 @@ export class DIContainer {
         if (options == null)
             throw new ReferenceError(`${this.constructor.name} could not get service: No options was given!`);
         return this.serviceRegistry.has(options.identifier);
+    }
+    /**
+     * Provides a global shared instance of a container (singleton).  This is
+     * especially useful when creating libraries (such as in a monorepo) where
+     * the library's imported file defines the dependencies that need to be
+     * injected for the library to operate without exposing the full set of
+     * injections necessary for each library.
+     *
+     * @returns Singleton container
+     */
+    static container() {
+        if (!DIContainer.diContainer)
+            DIContainer.diContainer = new DIContainer();
+        return DIContainer.diContainer;
     }
     register(kind, newExpression, options) {
         // Take all of the constructor arguments for the implementation
