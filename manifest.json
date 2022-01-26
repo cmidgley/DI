@@ -1,6 +1,7 @@
 {
 	"modules": {
-		"@cmidgley/di": ["dist/esm/index", "dist/esm/index.d"],
+		"@cmidgley/di": ["dist/esm/index"],
+		"@cmidgley/index.d": ["dist/esm/index.d"],
 		"@cmidgley/di-container/*": ["dist/esm/di-container/*"],
 		"@cmidgley/constructor-arguments/*": ["dist/esm/constructor-arguments/*"],
 		"@cmidgley/registration-kind/*": ["dist/esm/registration-kind/*"]

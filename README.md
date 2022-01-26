@@ -17,33 +17,23 @@ This fork has been made to manage changes necessary to use with an embedded Java
    should publish a package. Hopefully once this is resolved the changes can be pulled into `wessberg/di` to avoid all
    of this!
 
-Using this requires hand editing the Moddable `mcconfig.js` file to modify it so it generates the `ttsc` command (or
-`npx ttsc` if `ttypescript` is not installed globally), and also adds the required `plugins` sections to `tsconfig.json`
-to reference the transformer module (#3, above). I have submitted a
-[feature request](https://github.com/Moddable-OpenSource/moddable/issues/772) to Moddable to propose adding
-functionality to Moddable to avoid this hack.
+Using this requires changing the typescript compiler from `tsc` to `ttsc` in the Moddable `manifest.json` file, and setting
+up the TypeScript to use the `di` tranformer.  This is done by adding the following to `manifest.json`:
 
-The modifications are made to the `.../moddable/tools/mcmanifest.js` file as follows:
+```json
+  "typescript": {
+    "compiler": "ttsc",
+    "tsconfig": {
+      "compilerOptions": {
+        "plugins": [
+          {
+            "transform": "$(PROJECT_DIR)/node_modules/@cmidgley/di/ttypescript/src/transformer.js"
+          }
+        ]
+      }
+    }
+  }
 
--   In `generateModulesRules` search for `"tsc"` (currently around line 456/467) and change `tsc` to either `ttsc`
-    (`ttypescript` globally installed) or `npx ttsc` (locally installed):
-
-```tsc
-this.echo(tool, "npx ttsc ", "tsconfig.json");
-this.line("\tnpx ttsc -p $(MODULES_DIR)", tool.slash, "tsconfig.json --pretty false 1>&2");
-```
-
--   In `generate` modify `compilerOptions` to include the needed `plugins` parameter as a new member:
-
-```tsc
-[{ transform: tool.mainPath + "/node_modules/@cmidgley/di/ttypescript/src/transformer.js" }],
-```
-
-Once done, you will need to rebuild the Moddable tools (in this case, for linux):
-
-```
-cd <path>/moddable/build/makefiles/lin
-make
 ```
 
 Don't forget to add this package to your `package.json` file, such as:
