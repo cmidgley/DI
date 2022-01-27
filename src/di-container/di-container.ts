@@ -52,7 +52,7 @@ export class DIContainer implements IDIContainer {
 	public registerSingleton<T, U extends T = T> (newExpression: undefined, options: IRegisterOptionsWithImplementation<U>): void;
 	public registerSingleton<T, U extends T = T> (newExpression?: ImplementationInstance<U>|undefined, options?: RegisterOptions<U>): void;
 	public registerSingleton<T, U extends T = T> (newExpression?: ImplementationInstance<U>|undefined, options?: RegisterOptions<U>): void {
-		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given!`);
+		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given (hint: check transformer configuration)`);
 		if (newExpression == null) {
 			return this.register(RegistrationKind.SINGLETON, newExpression, <IRegisterOptionsWithImplementation<U>> options);
 		}
@@ -74,7 +74,7 @@ export class DIContainer implements IDIContainer {
 	public registerTransient<T, U extends T = T> (newExpression: undefined, options: IRegisterOptionsWithImplementation<U>): void;
 	public registerTransient<T, U extends T = T> (newExpression?: ImplementationInstance<U>|undefined, options?: RegisterOptions<U>): void;
 	public registerTransient<T, U extends T = T> (newExpression?: ImplementationInstance<U>|undefined, options?: RegisterOptions<U>): void {
-		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given!`);
+		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given (hint: check transformer configuration)`);
 		if (newExpression == null) {
 			return this.register(RegistrationKind.TRANSIENT, newExpression, <IRegisterOptionsWithImplementation<U>> options);
 		}
@@ -93,7 +93,7 @@ export class DIContainer implements IDIContainer {
 	 * @returns {T}
 	 */
 	public get<T> (options?: IGetOptions): T {
-		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No options was given!`);
+		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No options was given (hint: check transformer configuration)`);
 		return this.constructInstance<T>(options);
 	}
 
@@ -107,7 +107,7 @@ export class DIContainer implements IDIContainer {
 	 * @returns {boolean}
 	 */
 	public has<T> (options?: IHasOptions): boolean {
-		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No options was given!`);
+		if (options == null) throw new ReferenceError(`${this.constructor.name} could not get service: No options was given (hint: check transformer configuration)`);
 		return this.serviceRegistry.has(options.identifier);
 	}
 
@@ -253,7 +253,12 @@ export class DIContainer implements IDIContainer {
 				if (registrationRecord.implementation == null) throw new ReferenceError(`${this.constructor.name} could not construct a new service of kind: ${identifier}. Reason: No implementation was given!`);
 				const constructable = <(...args: any[]) => T> <unknown> registrationRecord.implementation;
 				// Try without 'new' and call the implementation as a function.
-				instance = constructable(...instanceArgs);
+				try {
+					instance = constructable(...instanceArgs);
+				} catch {
+					// throw error when doing 'new' as it is likely to be more descriptive
+					throw ex;
+				}
 			}
 		}
 

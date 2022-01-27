@@ -3,19 +3,28 @@
 This fork has been made to manage changes necessary to use with an embedded JavaScript framework called
 [ModdableSDK](https://github.com/Moddable-OpenSource/moddable). There are five main changes:
 
-1. Addition of a [ttypescript](https://github.com/cevek/ttypescript) module to allow for compiling with the command
-   `ttsc` using the required DI transformer. Also updated `package.json` to use a `postinstall` script to load the
-   required modules.
-2. Addition of a new singleton for `DIContainer` as static member `DIContainer.container()`.  Primary intended use is
-   for libraries where the library wishes to be consumable from code that might not use or instantiate `DIContainer`. 
-   By having the library import code define the injections using the shared singleton instance, the library can operate
-   stand-alone, while still working with other libraries or main application that consumes `DIContainer`.
-3. Addition of a `manifest.json` file required by Moddable to control the build. This file is similar to a
-   `package.json` file used by Node, but has a different format and technique to include files.
+1. Addition of a [ttypescript](https://github.com/cevek/ttypescript) module to
+   allow for compiling with the command `ttsc` using the required DI
+   transformer. Also updated `package.json` to use a `postinstall` script to
+   load the required modules.
+2. Addition of a new singleton for `DIContainer` as static member
+   `DIContainer.container()`.  Primary intended use is for libraries where the
+   library wishes to be consumable from code that might not use or instantiate
+   `DIContainer`. By having the library import code define the injections using
+   the shared singleton instance, the library can operate stand-alone, while
+   still working with other libraries or main application that consumes
+   `DIContainer`.
+3. Addition of a `manifest.json` file required by Moddable to control the build.
+   This file is similar to a `package.json` file used by Node, but has a
+   different format and technique to include files.
 4. A change to `di-container.ts` to resolve a typescript error due to a missing cast.
-5. Remove `dist` from .gitignore so that we can check in the typescript compiled files. This is a bit of a hack, as we
-   should publish a package. Hopefully once this is resolved the changes can be pulled into `wessberg/di` to avoid all
-   of this!
+5. Remove `dist` from .gitignore so that we can check in the typescript compiled
+   files. This is a bit of a hack, as we should publish a package. Hopefully
+   once this is resolved the changes can be pulled into `wessberg/di` to avoid
+   all of this!
+6. Improved some error handling, with better hints when the transformer isn't
+   working and constructor exceptions now throw the original error rather than
+   one that is likely less descriptive.
 
 Using this requires changing the typescript compiler from `tsc` to `ttsc` in the Moddable `manifest.json` file, and setting
 up the TypeScript to use the `di` tranformer.  This is done by adding the following to `manifest.json`:

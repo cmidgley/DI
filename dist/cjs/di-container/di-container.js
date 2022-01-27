@@ -28,7 +28,7 @@ class DIContainer {
     }
     registerSingleton(newExpression, options) {
         if (options == null)
-            throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given!`);
+            throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given (hint: check transformer configuration)`);
         if (newExpression == null) {
             return this.register(registration_kind_1.RegistrationKind.SINGLETON, newExpression, options);
         }
@@ -38,7 +38,7 @@ class DIContainer {
     }
     registerTransient(newExpression, options) {
         if (options == null)
-            throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given!`);
+            throw new ReferenceError(`${this.constructor.name} could not get service: No arguments were given (hint: check transformer configuration)`);
         if (newExpression == null) {
             return this.register(registration_kind_1.RegistrationKind.TRANSIENT, newExpression, options);
         }
@@ -57,7 +57,7 @@ class DIContainer {
      */
     get(options) {
         if (options == null)
-            throw new ReferenceError(`${this.constructor.name} could not get service: No options was given!`);
+            throw new ReferenceError(`${this.constructor.name} could not get service: No options was given (hint: check transformer configuration)`);
         return this.constructInstance(options);
     }
     /**
@@ -71,7 +71,7 @@ class DIContainer {
      */
     has(options) {
         if (options == null)
-            throw new ReferenceError(`${this.constructor.name} could not get service: No options was given!`);
+            throw new ReferenceError(`${this.constructor.name} could not get service: No options was given (hint: check transformer configuration)`);
         return this.serviceRegistry.has(options.identifier);
     }
     /**
@@ -195,7 +195,13 @@ class DIContainer {
                     throw new ReferenceError(`${this.constructor.name} could not construct a new service of kind: ${identifier}. Reason: No implementation was given!`);
                 const constructable = registrationRecord.implementation;
                 // Try without 'new' and call the implementation as a function.
-                instance = constructable(...instanceArgs);
+                try {
+                    instance = constructable(...instanceArgs);
+                }
+                catch (_a) {
+                    // throw error when doing 'new' as it is likely to be more descriptive
+                    throw ex;
+                }
             }
         }
         return registrationRecord.kind === registration_kind_1.RegistrationKind.SINGLETON ? this.setInstance(identifier, instance) : instance;
