@@ -1,3 +1,3 @@
-const { di } = require('@wessberg/di-compiler');
+const { di } = require("@cmidgley/di-compiler");
 const transformer = (program) => di({ program });
 module.exports = transformer;

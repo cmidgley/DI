@@ -4,7 +4,7 @@
 	"description": "Transformer for ttypescript to run di-compiler",
 	"devDependencies": {
 		"typescript": "^4.5.3",
-		"@wessberg/di-compiler": "~2.2.6",
+		"@cmidgley/di-compiler": "https://github.com/cmidgley/di-compiler",
 		"ttypescript": "~1.5.13"
 	}
 }
