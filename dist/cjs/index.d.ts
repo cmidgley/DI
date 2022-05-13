@@ -36,6 +36,32 @@ interface IDIContainer {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     has<T>(options?: IHasOptions): boolean;
 }
+type RegistrationKind = "SINGLETON" | "TRANSIENT";
+interface IRegistrationRecordBase {
+    kind: RegistrationKind;
+}
+interface IRegistrationRecordWithoutImplementation<T> extends IRegistrationRecordBase, IRegisterOptionsWithoutImplementation {
+    kind: RegistrationKind;
+    newExpression: ImplementationInstance<T>;
+}
+interface IRegistrationRecordWithImplementation<T> extends IRegistrationRecordBase, IRegisterOptionsWithImplementation<T> {
+    kind: RegistrationKind;
+}
+type RegistrationRecord<T> = IRegistrationRecordWithImplementation<T> | IRegistrationRecordWithoutImplementation<T>;
+interface DIContainerMaps {
+    /**
+     * A map between interface names and the services that should be dependency injected
+     */
+    constructorArguments: Map<string, ConstructorArgument[]>;
+    /**
+     * A Map between identifying names for services and their IRegistrationRecords.
+     */
+    serviceRegistry: Map<string, RegistrationRecord<unknown>>;
+    /**
+     * A map between identifying names for services and concrete instances of their implementation.
+     */
+    instances: Map<string, unknown>;
+}
 /**
  * A Dependency-Injection container that holds services and can produce instances of them as required.
  * It mimics reflection by parsing the app at compile-time and supporting the generic-reflection syntax.
@@ -47,22 +73,14 @@ declare class DIContainer implements IDIContainer {
      */
     static diContainer?: DIContainer;
     /**
-     * A map between interface names and the services that should be dependency injected
+     * Global members that need to be writable, so the module can be preloaded in Moddable.
      */
-    private readonly constructorArguments;
+    private writableDiContainerMaps;
     /**
-     * A Map between identifying names for services and their IRegistrationRecords.
+     * Getter that provides access to the various maps.  Handles cloning the maps from the read-only preload condition
+     * to a writable runtime version to support Moddable preloads.
      */
-    private readonly serviceRegistry;
-    /**
-     * A map between identifying names for services and concrete instances of their implementation.
-     */
-    private readonly instances;
-    /**
-     * Constructor sets up instances that need runtime instantiation (and support preload on Moddable, where you cannot instantiate
-     * these mutable objects at compile time else they are readonly).
-     */
-    constructor();
+    get diContainerMaps(): DIContainerMaps;
     /**
      * Registers a service that will be instantiated once in the application lifecycle. All requests
      * for the service will retrieve the same instance of it.

@@ -12,25 +12,26 @@ class DIContainer {
      */
     static diContainer;
     /**
-     * A map between interface names and the services that should be dependency injected
+     * Global members that need to be writable, so the module can be preloaded in Moddable.
      */
-    constructorArguments;
+    writableDiContainerMaps = {
+        constructorArguments: new Map(),
+        serviceRegistry: new Map(),
+        instances: new Map()
+    };
     /**
-     * A Map between identifying names for services and their IRegistrationRecords.
+     * Getter that provides access to the various maps.  Handles cloning the maps from the read-only preload condition
+     * to a writable runtime version to support Moddable preloads.
      */
-    serviceRegistry;
-    /**
-     * A map between identifying names for services and concrete instances of their implementation.
-     */
-    instances;
-    /**
-     * Constructor sets up instances that need runtime instantiation (and support preload on Moddable, where you cannot instantiate
-     * these mutable objects at compile time else they are readonly).
-     */
-    constructor() {
-        this.constructorArguments = new Map();
-        this.serviceRegistry = new Map();
-        this.instances = new Map();
+    get diContainerMaps() {
+        // if a map is frozen, it has been preloaded, so we need to clone the map.  This happens because registrations
+        // occur during preload, but then also need to work at runtime.
+        if (Object.isFrozen(this.writableDiContainerMaps.constructorArguments)) {
+            this.writableDiContainerMaps.constructorArguments = new Map(this.writableDiContainerMaps.constructorArguments);
+            this.writableDiContainerMaps.instances = new Map(this.writableDiContainerMaps.instances);
+            this.writableDiContainerMaps.serviceRegistry = new Map(this.writableDiContainerMaps.serviceRegistry);
+        }
+        return this.writableDiContainerMaps;
     }
     registerSingleton(newExpression, options) {
         if (options == null) {
@@ -79,7 +80,7 @@ class DIContainer {
         if (options == null) {
             throw new ReferenceError(`1 argument required, but only 0 present. ${DI_COMPILER_ERROR_HINT}`);
         }
-        return this.serviceRegistry.has(options.identifier);
+        return this.diContainerMaps.serviceRegistry.has(options.identifier);
     }
     /**
      * Provides a global shared instance of a container (singleton).  This is
@@ -102,8 +103,8 @@ class DIContainer {
             options.implementation[CONSTRUCTOR_ARGUMENTS_SYMBOL] != null
             ? options.implementation[CONSTRUCTOR_ARGUMENTS_SYMBOL]
             : [];
-        this.constructorArguments.set(options.identifier, implementationArguments);
-        this.serviceRegistry.set(options.identifier, 'implementation' in options && options.implementation != null
+        this.diContainerMaps.constructorArguments.set(options.identifier, implementationArguments);
+        this.diContainerMaps.serviceRegistry.set(options.identifier, 'implementation' in options && options.implementation != null
             ? { ...options, kind }
             : { ...options, kind, newExpression: newExpression });
     }
@@ -117,14 +118,14 @@ class DIContainer {
      * Gets the cached instance, if any, associated with the given identifier.
      */
     getInstance(identifier) {
-        const instance = this.instances.get(identifier);
+        const instance = this.diContainerMaps.instances.get(identifier);
         return instance == null ? null : instance;
     }
     /**
      * Gets an IRegistrationRecord associated with the given identifier.
      */
-    getRegistrationRecord({ identifier, parentChain }) {
-        const record = this.serviceRegistry.get(identifier);
+    getRegistrationRecord({ identifier, parentChain, }) {
+        const record = this.diContainerMaps.serviceRegistry.get(identifier);
         if (record == null) {
             throw new ReferenceError(`${this.constructor.name} could not find a service for identifier: "${identifier}". ${parentChain == null || parentChain.length < 1
                 ? ''
@@ -138,26 +139,27 @@ class DIContainer {
      * Caches the given instance so that it can be retrieved in the future.
      */
     setInstance(identifier, instance) {
-        this.instances.set(identifier, instance);
+        this.diContainerMaps.instances.set(identifier, instance);
         return instance;
     }
     /**
      * Gets a lazy reference to another service
      */
     getLazyIdentifier(lazyPointer) {
-        return new Proxy({}, { get: (_, key) => lazyPointer()[key] });
+        return (new Proxy({}, { get: (_, key) => lazyPointer()[key] }));
     }
     /**
      * Constructs a new instance of the given identifier and returns it.
      * It checks the constructor arguments and injects any services it might depend on recursively.
      */
-    constructInstance({ identifier, parentChain = [] }) {
+    constructInstance({ identifier, parentChain = [], }) {
         const registrationRecord = this.getRegistrationRecord({
             identifier,
             parentChain,
         });
         // If an instance already exists (and it is a singleton), return that one
-        if (this.hasInstance(identifier) && registrationRecord.kind === 'SINGLETON') {
+        if (this.hasInstance(identifier) &&
+            registrationRecord.kind === 'SINGLETON') {
             return this.getInstance(identifier);
         }
         // Otherwise, instantiate a new one
@@ -180,7 +182,7 @@ class DIContainer {
         }
         else {
             // Find the arguments for the identifier
-            const mappedArgs = this.constructorArguments.get(identifier);
+            const mappedArgs = this.diContainerMaps.constructorArguments.get(identifier);
             if (mappedArgs == null) {
                 throw new ReferenceError(`${this.constructor.name} could not find constructor arguments for the service: '${identifier}'. Have you registered it as a service?`);
             }
@@ -215,7 +217,9 @@ class DIContainer {
                 }
             }
         }
-        return registrationRecord.kind === 'SINGLETON' ? this.setInstance(identifier, instance) : instance;
+        return registrationRecord.kind === 'SINGLETON'
+            ? this.setInstance(identifier, instance)
+            : instance;
     }
 }
 const DI_COMPILER_ERROR_HINT = `Note: You must use DI-Compiler (https://github.com/wessberg/di-compiler) for this library to work correctly. Please consult the readme for instructions on how to install and configure it for your project.`;
