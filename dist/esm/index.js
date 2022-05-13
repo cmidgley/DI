@@ -14,24 +14,33 @@ class DIContainer {
     /**
      * A map between interface names and the services that should be dependency injected
      */
-    constructorArguments = new Map();
+    constructorArguments;
     /**
      * A Map between identifying names for services and their IRegistrationRecords.
      */
-    serviceRegistry = new Map();
+    serviceRegistry;
     /**
      * A map between identifying names for services and concrete instances of their implementation.
      */
-    instances = new Map();
+    instances;
+    /**
+     * Constructor sets up instances that need runtime instantiation (and support preload on Moddable, where you cannot instantiate
+     * these mutable objects at compile time else they are readonly).
+     */
+    constructor() {
+        this.constructorArguments = new Map();
+        this.serviceRegistry = new Map();
+        this.instances = new Map();
+    }
     registerSingleton(newExpression, options) {
         if (options == null) {
             throw new ReferenceError(`2 arguments required, but only 0 present. ${DI_COMPILER_ERROR_HINT}`);
         }
         if (newExpression == null) {
-            return this.register("SINGLETON", newExpression, options);
+            return this.register('SINGLETON', newExpression, options);
         }
         else {
-            return this.register("SINGLETON", newExpression, options);
+            return this.register('SINGLETON', newExpression, options);
         }
     }
     registerTransient(newExpression, options) {
@@ -39,10 +48,10 @@ class DIContainer {
             throw new ReferenceError(`2 arguments required, but only 0 present. ${DI_COMPILER_ERROR_HINT}`);
         }
         if (newExpression == null) {
-            return this.register("TRANSIENT", newExpression, options);
+            return this.register('TRANSIENT', newExpression, options);
         }
         else {
-            return this.register("TRANSIENT", newExpression, options);
+            return this.register('TRANSIENT', newExpression, options);
         }
     }
     /**
@@ -88,13 +97,13 @@ class DIContainer {
     }
     register(kind, newExpression, options) {
         // Take all of the constructor arguments for the implementation
-        const implementationArguments = "implementation" in options &&
+        const implementationArguments = 'implementation' in options &&
             options.implementation != null &&
             options.implementation[CONSTRUCTOR_ARGUMENTS_SYMBOL] != null
             ? options.implementation[CONSTRUCTOR_ARGUMENTS_SYMBOL]
             : [];
         this.constructorArguments.set(options.identifier, implementationArguments);
-        this.serviceRegistry.set(options.identifier, "implementation" in options && options.implementation != null
+        this.serviceRegistry.set(options.identifier, 'implementation' in options && options.implementation != null
             ? { ...options, kind }
             : { ...options, kind, newExpression: newExpression });
     }
@@ -118,10 +127,10 @@ class DIContainer {
         const record = this.serviceRegistry.get(identifier);
         if (record == null) {
             throw new ReferenceError(`${this.constructor.name} could not find a service for identifier: "${identifier}". ${parentChain == null || parentChain.length < 1
-                ? ""
+                ? ''
                 : `It is required by the service: '${parentChain
                     .map((parent) => parent.identifier)
-                    .join(" -> ")}'.`} Remember to register it as a service!`);
+                    .join(' -> ')}'.`} Remember to register it as a service!`);
         }
         return record;
     }
@@ -148,7 +157,7 @@ class DIContainer {
             parentChain,
         });
         // If an instance already exists (and it is a singleton), return that one
-        if (this.hasInstance(identifier) && registrationRecord.kind === "SINGLETON") {
+        if (this.hasInstance(identifier) && registrationRecord.kind === 'SINGLETON') {
             return this.getInstance(identifier);
         }
         // Otherwise, instantiate a new one
@@ -158,8 +167,8 @@ class DIContainer {
             ref: this.getLazyIdentifier(() => instance),
         };
         // If a user-provided new-expression has been provided, invoke that to get an instance.
-        if ("newExpression" in registrationRecord) {
-            if (typeof registrationRecord.newExpression !== "function") {
+        if ('newExpression' in registrationRecord) {
+            if (typeof registrationRecord.newExpression !== 'function') {
                 throw new TypeError(`Could not instantiate the service with the identifier: '${registrationRecord.identifier}': You provided a custom instantiation argument, but it wasn't of type function. It has to be a function that returns whatever should be used as an instance of the Service!`);
             }
             try {
@@ -206,7 +215,7 @@ class DIContainer {
                 }
             }
         }
-        return registrationRecord.kind === "SINGLETON" ? this.setInstance(identifier, instance) : instance;
+        return registrationRecord.kind === 'SINGLETON' ? this.setInstance(identifier, instance) : instance;
     }
 }
 const DI_COMPILER_ERROR_HINT = `Note: You must use DI-Compiler (https://github.com/wessberg/di-compiler) for this library to work correctly. Please consult the readme for instructions on how to install and configure it for your project.`;

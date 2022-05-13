@@ -59,6 +59,11 @@ declare class DIContainer implements IDIContainer {
      */
     private readonly instances;
     /**
+     * Constructor sets up instances that need runtime instantiation (and support preload on Moddable, where you cannot instantiate
+     * these mutable objects at compile time else they are readonly).
+     */
+    constructor();
+    /**
      * Registers a service that will be instantiated once in the application lifecycle. All requests
      * for the service will retrieve the same instance of it.
      *
