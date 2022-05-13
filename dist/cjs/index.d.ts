@@ -71,7 +71,7 @@ declare class DIContainer implements IDIContainer {
     /**
      * Singleton instance of the container, for global sharing of the container.
      */
-    static diContainer?: DIContainer;
+    private static diContainer?;
     /**
      * Global members that need to be writable, so the module can be preloaded in Moddable.
      */
